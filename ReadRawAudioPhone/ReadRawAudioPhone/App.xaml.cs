@@ -6,11 +6,11 @@ namespace ReadRawAudioPhone
 {
     public partial class App : Application
     {
-        public App()
+        public App(IRawAudioRecorder rawAudioRecorder)
         {
             InitializeComponent();
 
-            MainPage = new MainPage();
+            MainPage = new MainPage(rawAudioRecorder);
         }
 
         protected override void OnStart()

@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Android.Media;
+using System;
 using System.Threading;
-using Android.App;
-using Android.Content;
-using Android.Media;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 
 namespace ReadRawAudioPhone.Droid
 {
-    public class RawAudioRecorder
+    public class RawAudioRecorder : IRawAudioRecorder
     {
         private bool _shouldRecord = false; 
-        private Thread _thread; 
+        private Thread _thread;
+        private bool _recording = false; 
+
+        public bool IsRecording => _recording;
+
         public void StartRecordingAsync()
         {
             lock(this)
@@ -44,10 +39,12 @@ namespace ReadRawAudioPhone.Droid
                             while (_shouldRecord)
                             {
                                 int bytesRead = record.Read(buffer, 0, buffer.Length);
+                                _recording = true; 
                             }
                         }
                         finally
                         {
+                            _recording = false; 
                             record.Stop();
                             record.Release();
                             record.Dispose();
