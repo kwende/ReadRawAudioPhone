@@ -5,7 +5,7 @@ namespace ReadRawAudioPhone
     public interface IRawAudioRecorder
     {
         void StartRecordingAsync();
-        bool StopRecording(TimeSpan timeout); 
+        byte[] StopRecording(TimeSpan timeout); 
         bool IsRecording { get; }
     }
 }

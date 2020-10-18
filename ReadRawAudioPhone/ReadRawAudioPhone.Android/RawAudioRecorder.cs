@@ -1,5 +1,6 @@
 ﻿using Android.Media;
 using System;
+using System.IO;
 using System.Threading;
 
 namespace ReadRawAudioPhone.Droid
@@ -8,8 +9,8 @@ namespace ReadRawAudioPhone.Droid
     {
         private bool _shouldRecord = false; 
         private Thread _thread;
-        private bool _recording = false; 
-
+        private bool _recording = false;
+        private MemoryStream _memStream; 
         public bool IsRecording => _recording;
 
         public void StartRecordingAsync()
@@ -20,6 +21,8 @@ namespace ReadRawAudioPhone.Droid
                 {
                     _thread = new Thread(new ThreadStart(() =>
                     {
+                        _memStream = new MemoryStream(); 
+
                         int bufferSize = AudioRecord.GetMinBufferSize(44100,
                             ChannelIn.Mono,
                             Android.Media.Encoding.Pcm16bit);
@@ -39,6 +42,7 @@ namespace ReadRawAudioPhone.Droid
                             while (_shouldRecord)
                             {
                                 int bytesRead = record.Read(buffer, 0, buffer.Length);
+                                _memStream.Write(buffer, 0, bytesRead); 
                                 _recording = true; 
                             }
                         }
@@ -58,18 +62,17 @@ namespace ReadRawAudioPhone.Droid
             }
         }
 
-        public bool StopRecording(TimeSpan timeout)
+        public byte[] StopRecording(TimeSpan timeout)
         {
-            bool ret = false; 
             lock(this)
             {
                 if(_thread != null)
                 {
                     _shouldRecord = false;
-                    ret = _thread.Join(timeout); 
+                    _thread.Join(timeout); 
                 }
             }
-            return ret; 
+            return _memStream.ToArray(); 
         }
     }
 }
